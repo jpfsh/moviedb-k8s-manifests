@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment # specifies that this resource is a Deployment, used for managing a set of replicas of a pod.
+metadata:
+  name: fabflix 
+spec:
+  replicas: 2 # Indicates that two replicas (pods) of the application should be running
+  selector:
+    matchLabels:
+      app: fabflix # The selector specifies that this deployment targets pods with the label
+  template:
+    metadata:
+      labels:
+        app: fabflix # Labels the pods with "app: fabflix" to match the selector.
+    spec:
+      containers:
+        - name: fabflix-container # names the container within the pod
+          image: jspuff/fabflix:v3 # Uses the dockerhub's image for the container
+          ports:
+            - name: http
+              containerPort: 8080 # Exposes port 8080 of the container
+          resources:
+            limits:
+              cpu: "1" # limits the container to use at most 1 CPU
+              memory: "1Gi" # limits the container to use at most 1 GiB of memory
+      imagePullSecrets: # Specifies the secret to use for pulling private images from dockerhub
+        - name: regcred #  References a kubernetes secret named "regcred"
+---
+apiVersion: v1
+kind: Service # specifies that this resource is a Service, which defines a logical set of pods and a policy to access them
+metadata:
+  name: fabflix-service 
+spec:
+  selector:
+    app: fabflix # selector specifies that this Service targets pods with the label "app: fabflix"
+  ports:
+    - name: http
+      port: 8080 # exposes the service on port 8080
+  type: ClusterIP # specifies that the service is of type ClusterIP, making it accessible only within the cluster
