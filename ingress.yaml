@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx # Specifies that this Ingress resource should be handled by the nginx Ingress controller
+    nginx.ingress.kubernetes.io/affinity: "cookie" # enables session affinity based on cookies, ensuring requests from the same client are routed to the same backend
+    nginx.ingress.kubernetes.io/session-cookie-name: "stickounet" # sets name of the session cookie used for maintaining session affinity
+    nginx.ingress.kubernetes.io/session-cookie-expires: "172800" # sets expiration time of the session cookie in seconds (172800 seconds = 2 days)
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800" # sets max age of the session cookie in seconds, aligning with the expiration time
+  name: fabflix-ingress # ingress resource name
+  namespace: default
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: fabflix-service # Points to service of this name. Value should match the name of the service
+                port:
+                  number: 8080 # service is listening on port 8080
+            path: / # Defines the path to match incoming requests. Here, "/" means the root path
+            pathType: Prefix # Path is a prefix match, so any request path starting with "/" is routed to  backend service
